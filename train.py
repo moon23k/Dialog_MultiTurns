@@ -10,11 +10,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+from model.module import ChatBERT
 from utils.data import get_dataloader
-from utils.model import load_model
 from utils.train import train_epoch, valid_epoch, epoch_time
-
-
 
 
 
@@ -53,6 +51,12 @@ class Config(object):
 
 
 
+def init_xavier(model):
+    for layer in model.named_parameters():
+        if 'weight' in layer[0] and 'layer_norm' not in layer[0] and 'bert' not in layer[0] and layer[1].dim() > 1:
+            nn.init.xavier_uniform_(layer[1])
+
+
 
 
 def run(args, config):
@@ -72,12 +76,13 @@ def run(args, config):
     train_record = defaultdict(list)
         
     #get dataloader from chosen dataset
-    train_dataloader = get_dataloader(args.bert, 'train', config.batch_size)
-    valid_dataloader = get_dataloader(args.bert, 'valid', config.batch_size)
+    train_dataloader = get_dataloader('train', config.batch_size)
+    valid_dataloader = get_dataloader('valid', config.batch_size)
     
     
     #load model, criterion, optimizer, scheduler
-    model = load_model(args.model, config)
+    model = ChatBERT(config)
+    model.apply(init_xavier)
     criterion = nn.CrossEntropyLoss(ignore_index=config.pad_idx).to(config.device)
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
     
@@ -111,7 +116,7 @@ def run(args, config):
                         'valid_loss': valid_loss}, chk_path)
 
         print(f"Epoch: {epoch + 1} | Time: {epoch_mins}m {epoch_secs}s")
-        print(f'\tTrain Loss: {train_loss:.3f} | Valid Loss: {valid_loss:.3f}')
+        print(f'Train Loss: {train_loss:.3f} | Valid Loss: {valid_loss:.3f}')
 
 
     train_mins, train_secs = epoch_time(record_time, time.time())
