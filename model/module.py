@@ -55,6 +55,13 @@ class ChatBERT(nn.Module):
         else:
             self.embedding = self.bert.embeddings
 
+        if config.bert == 'electra':
+            self.bert_fc = nn.Linear(256, 768)
+        elif config.bert == 'mobile':
+            self.bert_fc = nn.Linear(128, 768)
+        else:
+            self.bert_fc = None
+
         self.encoder = Encoder(config)
         self.decoder = Decoder(config)
         
@@ -64,6 +71,10 @@ class ChatBERT(nn.Module):
 
     def forward(self, src, trg, src_mask, trg_mask):
         bert_out = self.bert(src).last_hidden_state
+        
+        if self.bert_fc is not None:
+            bert_out = self.bert_fc(bert_out)
+
         src, trg = self.embedding(src), self.embedding(trg) 
         
         enc_out = self.encoder(src, bert_out, src_mask)
