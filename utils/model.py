@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from model.module import BertNMT
+from model.module import ChatBERT
 
 
 
@@ -18,8 +18,8 @@ def count_parameters(model):
 
 
 
-def load_model(model_name, config):
-    model = BertNMT(config)
+def load_model(config):
+    model = ChatBERT(config)
 
     #Avoiding Update pretrained params
     for param in model.bert.parameters():
@@ -30,6 +30,6 @@ def load_model(model_name, config):
 
     model.to(config.device)
 
-    print(f'{model_name} model has loaded. The model has {count_parameters(model):,} trainable parameters')
+    print(f'Chat_BERT with {config.bert} model has loaded. The model has {count_parameters(model):,} trainable parameters')
 
     return model

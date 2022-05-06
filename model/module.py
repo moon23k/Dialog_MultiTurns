@@ -45,8 +45,15 @@ class ChatBERT(nn.Module):
         super(ChatBERT, self).__init__()
 
         self.bert = AutoModel.from_pretrained(config.pretrained)
+
+        if config.bert == 'xlnet':
+            self.embedding = self.bert.word_embeddings
+        elif config.bert in ['bart', 't5']:
+            self.embedding = self.bert.shared
+        else:
+            self.embedding = self.bert.embeddings
+
         self.bert.resize_token_embeddings(config.input_dim)
-        self.embedding = self.bert.embeddings
 
         self.encoder = Encoder(config)
         self.decoder = Decoder(config)

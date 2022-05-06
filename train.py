@@ -18,28 +18,34 @@ from utils.train import train_epoch, valid_epoch, epoch_time
 
 
 
+
+
 class Config(object):
     def __init__(self, args):
-        
-        files = ['model', 'train']
+        self.bert = args.bert
 
-        for file in files:
-            with open(f"configs/{file}.yaml", 'r') as f:
-                params = yaml.load(f, Loader=yaml.FullLoader)
-                if file == 'model':
-                    params = params[args.bert]
+        with open("configs/model.yaml", 'r') as f:
+            params = yaml.load(f, Loader=yaml.FullLoader)
 
-            for p in params.items():
-                setattr(self, p[0], p[1])
+        for p in params.items():    
+            setattr(self, p[0], p[1])
+
+        with open("configs/bert.yaml", 'r') as f:
+            params = yaml.load(f, Loader=yaml.FullLoader)
+
+        for p in params.items():
+            if p[0] == self.bert:    
+                setattr(self, 'pretrained', p[1])
+                break
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.best_valid_loss = float('inf')
-        self.learning_rate = 5e-4
+        self.learning_rate = 1e-3
 
-        if self.bert == 'electra':
-            config.hidden_dim = 256
-            config.pff_dim = 
-        
+        self.batch_size: 64
+        self.clip: 1
+        self.n_epochs: 10
+
 
     def print_attr(self):
         for attribute, value in self.__dict__.items():
@@ -51,7 +57,7 @@ class Config(object):
 
 def run(args, config):
     #set checkpoint, record path
-    chk_dir = f"checkpoints/{args.bert}/"
+    chk_dir = "checkpoints/"
     os.makedirs(chk_dir, exist_ok=True)
     
     chk_file = f"{args.bert}_states.pt"

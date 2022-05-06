@@ -1,0 +1,10 @@
+bert: bert-base-cased
+xlnet: xlnet-base-cased
+roberta: roberta-base
+albert: albert-base-v2
+bart: facebook/bart-base
+electra: google/electra-small-discriminator
+mobile: google/mobilebert-uncased
+ernie: nghuyong/ernie-2.0-en
+bird: google/bigbird-roberta-base
+t5: t5-small
