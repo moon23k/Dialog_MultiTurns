@@ -40,9 +40,9 @@ class Config(object):
         self.best_valid_loss = float('inf')
         self.learning_rate = 1e-3
 
-        self.batch_size: 64
-        self.clip: 1
-        self.n_epochs: 10
+        self.batch_size = 64
+        self.clip = 1
+        self.n_epochs = 10
 
 
     def print_attr(self):
@@ -81,7 +81,7 @@ def run(args, config):
     
     
     #load model, criterion, optimizer, scheduler
-    model = ChatBERT(config)
+    model = ChatBERT(config).to(config.device)
     model.apply(init_xavier)
     criterion = nn.CrossEntropyLoss(ignore_index=config.pad_idx).to(config.device)
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
@@ -116,7 +116,7 @@ def run(args, config):
                         'valid_loss': valid_loss}, chk_path)
 
         print(f"Epoch: {epoch + 1} | Time: {epoch_mins}m {epoch_secs}s")
-        print(f'Train Loss: {train_loss:.3f} | Valid Loss: {valid_loss:.3f}')
+        print(f'Train Loss: {train_loss:.3f} | Valid Loss: {valid_loss:.3f}\n')
 
 
     train_mins, train_secs = epoch_time(record_time, time.time())

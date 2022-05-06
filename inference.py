@@ -20,10 +20,13 @@ def run(model, tokenizer, device, max_tokens=100):
 	        #process user input to model src tensor
 	        src = tokenizer.EncodeAsIds(seq)
 	        src = torch.tensor(src, dtype=torch.long).unsqueeze(0)
-	        src_mask = create_src_mask(src)
 
+			src_mask = create_src_mask(src)
+	        bert_out = model.bert(src)
+	        
 	        src = model.embedding(src)	        
 	        enc_out = model.encoder(src, src_mask)
+
 	        trg_indice = [tokenizer.bos_id()]
 
 
@@ -33,7 +36,7 @@ def run(model, tokenizer, device, max_tokens=100):
 
 	            trg = model.embedding(trg_tensor)
 
-                dec_out, _ = model.decoder(enc_out, trg, src_mask, trg_mask)
+                dec_out, _ = model.decoder(enc_out, trg, bert_out, src_mask, trg_mask)
                 out = model.fc_out(dec_out)
 
 	            pred_token = out.argmax(2)[:, -1].item()
@@ -61,7 +64,7 @@ if __name__ == '__main__':
     config.device = torch.device('cpu')
 
 	model = Generator(config).to(config.device)
-	model.load_state_dict(torch.load('checkpoints/{}_states.pt', map_location=config.device)['model'])
+	model.load_state_dict(torch.load('checkpoints/{args.bert}_states.pt', map_location=config.device)['model_state_dict'])
 	
 	tokenizer = spm.SentencePieceProcessor()
 	tokenizer.load('data/vocab/spm.model')
