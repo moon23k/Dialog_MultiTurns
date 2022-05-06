@@ -14,7 +14,7 @@ def read_text(f_name, max_words=100):
         _line = list(map(int, line.split()))
         if len(_line) > max_words:
             _line = _line[:99]
-            _line.append(1) #append eos token
+            _line.append(3) #append eos token
         data.append(_line)
     
     return data
@@ -44,8 +44,8 @@ def _collate_fn(data_batch):
         trg_batch.append(trg)
 
     #padding value == 0
-    src_batch = pad_sequence(src_batch, batch_first=True, padding_value=0)
-    trg_batch = pad_sequence(trg_batch, batch_first=True, padding_value=0)
+    src_batch = pad_sequence(src_batch, batch_first=True, padding_value=1)
+    trg_batch = pad_sequence(trg_batch, batch_first=True, padding_value=1)
 
     return src_batch, trg_batch
 

@@ -22,7 +22,7 @@ def run(model, tokenizer, device, max_tokens=100):
 	        src = torch.tensor(src, dtype=torch.long).unsqueeze(0)
 
 			src_mask = create_src_mask(src)
-	        bert_out = model.bert(src)
+	        bert_out = model.bert(src).last_hidden_state
 	        
 	        src = model.embedding(src)	        
 	        enc_out = model.encoder(src, src_mask)

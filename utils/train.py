@@ -13,14 +13,14 @@ def epoch_time(start_time, end_time):
 
 
 
-def create_src_mask(src, pad_idx=0):
+def create_src_mask(src, pad_idx=1):
     src_mask = (src != pad_idx).unsqueeze(1).unsqueeze(2)
     src_mask.to(src.device)
     return src_mask
 
 
 
-def create_trg_mask(trg, pad_idx=0):
+def create_trg_mask(trg, pad_idx=1):
     trg_pad_mask = (trg != pad_idx).unsqueeze(1).unsqueeze(2)
     trg_sub_mask = torch.tril(torch.ones((trg.size(-1), trg.size(-1)))).bool()
     trg_mask = trg_pad_mask & trg_sub_mask.to(trg.device)

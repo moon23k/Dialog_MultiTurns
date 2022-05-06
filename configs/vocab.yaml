@@ -9,7 +9,7 @@ pad_id: 1
 pad_piece: "[PAD]"
 
 bos_id: 2
-bos_piece: "[CLS]"
+bos_piece: "[BOS]"
 
 eos_id: 3
-eos_piece: "[SEP]"
+eos_piece: "[EOS]"
