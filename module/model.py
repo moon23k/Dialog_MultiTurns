@@ -1,4 +1,4 @@
-import torch, os
+import os, torch
 import torch.nn as nn
 from model.fine import FineModel
 from model.fuse import FuseModel
@@ -16,6 +16,7 @@ def init_weights(model):
         if any([x in name for x in except_list]):
             continue
         nn.init.xavier_uniform_(param)    
+
 
 
 def print_model_desc(model):

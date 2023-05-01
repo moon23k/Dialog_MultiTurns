@@ -34,8 +34,6 @@ class Trainer:
                                           {'params': model.decoder.parameters()},
                                           {'params': model.generator.parameters()}], lr=config.lr)
 
-
-
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
         
         self.ckpt_path = config.ckpt_path

@@ -29,34 +29,34 @@ def process_data(orig_data, tokenizer):
 
         if len(single) < 10000:
             single.append({'hist': dial_list[0],
-                            'uttr': dial_list[0], 
-                            'resp': dial_list[1]})
+                           'uttr': dial_list[0], 
+                           'resp': dial_list[1]})
         
         if len(double) < 13000:
             if dial_turns > 4:
                 diff = dial_turns - 4
                 if not diff:
                     double.append({'hist': dial_list[-4:-2], 
-                                    'uttr': dial_list[-2], 
-                                    'resp': dial_list[-1]})
+                                   'uttr': dial_list[-2], 
+                                   'resp': dial_list[-1]})
                 else:
                     for i in range(1, diff+1):
                         double.append({'hist': dial_list[-4-i:-2-i], 
-                                        'uttr': dial_list[-2-i], 
-                                        'resp': dial_list[-1-i]})
+                                       'uttr': dial_list[-2-i], 
+                                       'resp': dial_list[-1-i]})
 
         if len(triple) < 13000:
             if dial_turns > 6:
                 diff = dial_turns - 6
                 if not diff:
                     triple.append({'hist': dial_list[-6:-2], 
-                                    'uttr': dial_list[-2], 
-                                    'resp': dial_list[-1]})
+                                   'uttr': dial_list[-2], 
+                                   'resp': dial_list[-1]})
                 else:
                     for i in range(1, diff+1):
                         triple.append({'hist': dial_list[-6-i:-2-i], 
-                                        'uttr': dial_list[-2-i], 
-                                        'resp': dial_list[-1-i]})
+                                       'uttr': dial_list[-2-i], 
+                                       'resp': dial_list[-1-i]})
                         
         if len(single) >= 10000 and len(double) >= 13000 and len(triple) >= 13000:
             break
@@ -69,9 +69,8 @@ def process_data(orig_data, tokenizer):
 
 
 
-
 def save_data(data_obj, split):
-    with open(f'data/{split}_2nd.json', 'w') as f:
+    with open(f'data/{split}.json', 'w') as f:
         json.dump(data_obj, f)                   
 
 

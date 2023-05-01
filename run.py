@@ -111,7 +111,7 @@ if __name__ == '__main__':
     
     args = parser.parse_args()
     assert args.mode in ['train', 'test', 'inference']
-    assert args.strategy in ['fine', 'feat', 'fuse']
+    assert args.strategy in ['fine', 'fuse']
 
     if args.task == 'inference':
         assert args.search in ['greedy', 'beam']

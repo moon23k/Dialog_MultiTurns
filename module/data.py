@@ -18,28 +18,36 @@ class Dataset(torch.utils.data.Dataset):
 
 
     @staticmethod
-    def split_segs(hist):
+    def split_segs(hist):        
         segs = []
         for idx, ids in enumerate(hist):
+            seg_len = len(ids)
             if not idx % 2:
-                segs.extend([0 for _ in ids])
+                segs.extend([0 for _ in range(seg_len)])
             else:
-                segs.extend([1 for _ in ids])
+                segs.extend([1 for _ in range(seg_len)])
         return segs
 
 
     def __len__(self):
         return len(self.data)
 
+
     def __getitem__(self, idx):
-        hist = self.data[idx]['hist']
-        segs = self.split_segs(hist)
+        if isinstance(self.data[idx]['hist'][0], int):
+            hist = self.data[idx]['hist']
+            segs = [0 for _ in range(len(hist))]
+        else:
+            hist = []
+            segs = self.split_segs(self.data[idx]['hist'])
+            for x in self.data[idx]['hist']:
+                hist.extend(x)
+
         uttr = self.data[idx]['uttr']
         resp = self.data[idx]['resp']
         
-        return {'hist': hist, 
-                'uttr': uttr, 
-                'resp': resp}
+        return {'hist': hist, 'segs': segs,
+                'uttr': uttr, 'resp': resp}
 
 
 
@@ -51,8 +59,8 @@ class Collator(object):
         hist_batch, segs_batch, uttr_batch, resp_batch = [], [], [], []
         
         for elem in batch:
-            hist_batch.append(torch.LongTensor(elem['hist'].view(-1))) 
-            segs_batch.append(torch.LongTensor(elem['segs'].view(-1)))
+            hist_batch.append(torch.LongTensor(elem['hist'])) 
+            segs_batch.append(torch.LongTensor(elem['segs']))
             uttr_batch.append(torch.LongTensor(elem['uttr']))
             resp_batch.append(torch.LongTensor(elem['resp']))
 
@@ -71,4 +79,3 @@ def load_dataloader(config, split):
                       shuffle=True if config.mode == 'train' else False, 
                       collate_fn=Collator(config.pad_id), 
                       num_workers=2)
-        
