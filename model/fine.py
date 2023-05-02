@@ -30,7 +30,7 @@ class Decoder(nn.Module):
 
 
 class FineModel(nn.Module):
-    def __init__(self, config, bert, bert_embeddings):
+    def __init__(self, config, bert):
         super(FineModel, self).__init__()
         
         self.pad_id = config.pad_id
@@ -38,7 +38,7 @@ class FineModel(nn.Module):
         self.vocab_size = config.vocab_size
 
         self.encoder = bert
-        self.decoder = Decoder(config, copy.deepcopy(bert_embeddings))
+        self.decoder = Decoder(config, copy.deepcopy(bert.embeddings))
         self.generator = nn.Linear(config.hidden_dim, config.vocab_size)
 
         self.criterion = nn.CrossEntropyLoss(ignore_index=config.pad_id, 

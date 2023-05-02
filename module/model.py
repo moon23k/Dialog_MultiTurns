@@ -39,36 +39,18 @@ def print_model_desc(model):
     print(f"--- Model Params: {count_params(model):,}")
     print(f"--- Model  Size : {check_size(model):.3f} MB\n")
 
-
-
-def load_bert(config):
-    bert = BertModel.from_pretrained(config.bert_name)
-    bert_embeddings = bert.embeddings
-
-    max_len = config.model_max_length
-    temp_emb = nn.Embedding(max_len, 512)
-    temp_emb.weight.data[:512] = bert.embeddings.position_embeddings.weight.data
-    temp_emb.weight.data[512:] = bert.embeddings.position_embeddings.weight.data[-1][None,:].repeat(max_len-512, 1)
-
-    bert.embeddings.position_embeddings = temp_emb
-
-    bert.config.max_position_embeddings = max_len
-    bert.embeddings.position_ids = torch.arange(max_len).expand((1, -1))
-    bert.embeddings.token_type_ids = torch.zeros(max_len, dtype=torch.long).expand((1, -1))
-    
-    return bert, bert_embeddings
     
 
 
 def load_model(config):
-    #Load bert and embeddings
-    bert, bert_embeddings = load_bert(config)
+    #Load pretrained bert
+    bert = BertModel.from_pretrained(config.bert_name)
 
     #Load Initial Model
     if config.strategy == 'fine':
-        model = FineModel(config, bert, bert_embeddings)
+        model = FineModel(config, bert)
     elif config.strategy == 'fuse':
-        model = FuseModel(config, bert, bert_embeddings)
+        model = FuseModel(config, bert)
 
     init_weights(model)
     print(f'{config.strategy.upper()} Model has Loaded')

@@ -126,7 +126,7 @@ class Decoder(nn.Module):
 
 
 class FuseModel(nn.Module):
-    def __init__(self, config, bert, bert_embeddings):
+    def __init__(self, config, bert):
         super(FuseModel, self).__init__()
         
         self.pad_id = config.pad_id
@@ -134,8 +134,8 @@ class FuseModel(nn.Module):
         self.vocab_size = config.vocab_size
 
         self.bert = bert
-        self.encoder = Encoder(config, copy.deepcopy(bert_embeddings))
-        self.decoder = Decoder(config, copy.deepcopy(bert_embeddings))
+        self.encoder = Encoder(config, copy.deepcopy(bert.embeddings))
+        self.decoder = Decoder(config, copy.deepcopy(bert.embeddings))
         self.generator = nn.Linear(config.hidden_dim, config.vocab_size)
 
         self.criterion = nn.CrossEntropyLoss(ignore_index=config.pad_id, 
@@ -145,7 +145,7 @@ class FuseModel(nn.Module):
 
 
 
-    def forward(self, x, x_seg_mask, y):
+    def forward(self, hist, hist_seg_mask, x, y):
 
         #shift y
         y_input = y[:, :-1]
@@ -153,13 +153,14 @@ class FuseModel(nn.Module):
 
 
         #create masks
+        hist_pad_mask = (hist == self.pad_id).to(self.device)
         x_pad_mask = (x == self.pad_id).to(self.device)
         y_pad_mask = (y_input == self.pad_id).to(self.device)
         y_size = y_input.size(1)
         y_sub_mask = torch.triu(torch.full((y_size, y_size), float('-inf')), diagonal=1).to(self.device)
 
-        bert_out = self.bert(input_ids=x, token_type_ids=x_seg_mask, 
-                             attention_mask=x_pad_mask).last_hidden_state        
+        bert_out = self.bert(input_ids=hist, token_type_ids=hist_seg_mask, 
+                             attention_mask=hist_pad_mask).last_hidden_state        
 
         memory = self.encoder(x, bert_out, x_pad_mask)
         

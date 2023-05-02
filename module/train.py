@@ -107,6 +107,19 @@ class Trainer:
             json.dump(records, fp)
 
 
+    def collate_batch(self, batch):
+        if self.strategy == 'fine':
+            hist = batch['hist'].to(self.device)
+            segs = batch['segs'].to(self.device)
+            resp = batch['resp'].to(self.device)
+            return (hist, segs, resp)
+        else:
+            hist = batch['hist'].to(self.device)
+            segs = batch['segs'].to(self.device)
+            uttr = batch['uttr'].to(self.device)
+            resp = batch['resp'].to(self.device)            
+            return (hist, segs, uttr, resp)
+
 
     def train_epoch(self):
         self.model.train()
@@ -116,12 +129,8 @@ class Trainer:
         for idx, batch in enumerate(self.train_dataloader):
             idx += 1
 
-            x = batch['input_ids'].to(self.device) 
-            x_seg_mask = batch['token_type_ids'].to(self.device)
-            y = batch['labels'].to(self.device)
-
             with torch.autocast(device_type=self.device.type, dtype=torch.float16):
-                loss = self.model(x, x_seg_mask, y).loss
+                loss = self.model(self.collate_batch(batch)).loss
                 loss /= self.iters_to_accumulate
             
             self.scaler.scale(loss).backward()
@@ -151,13 +160,10 @@ class Trainer:
         tot_len = len(self.valid_dataloader)
         
         with torch.no_grad():
-            for batch in self.valid_dataloader:                
-                x = batch['input_ids'].to(self.device) 
-                x_seg_mask = batch['token_type_ids'].to(self.device)
-                y = batch['labels'].to(self.device)
+            for batch in self.valid_dataloader:
 
                 with torch.autocast(device_type=self.device.type, dtype=torch.float16):
-                    loss = self.model(x, x_seg_mask, y).loss
+                    loss = self.model(self.collate_batch(batch)).loss
 
                 epoch_loss += loss.item()
         
